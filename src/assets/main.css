@@ -1,0 +1,138 @@
+@import './base.css';
+/* src/styles/simaTheme.css */
+:root{
+  /* Paleta del screenshot */
+  --sima-sky-1: #1fb6ff;   /* sky */
+  --sima-sky-2: #00b2d8;   /* cyan */
+  --sima-sky-3: #2ec4ff;   /* más claro para hover */
+  --sima-green-1:#10b981;  /* online badge */
+  --sima-blue-ink:#0f172a; /* slate-900-like */
+  --sima-soft:#eef5ff;     /* fondo sidebar/panel */
+}
+
+/* Botón primario gradient (pill) */
+.btn-sima {
+  @apply inline-flex items-center gap-2 rounded-2xl text-white text-sm font-semibold px-4 py-2.5 shadow-sm transition-all;
+  background-image: linear-gradient(135deg, var(--sima-sky-2) 0%, var(--sima-sky-1) 100%);
+}
+.btn-sima:hover { filter: brightness(1.03); box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+.btn-sima:focus-visible { @apply outline-none ring-2 ring-white ring-offset-2; }
+
+/* Tarjeta “nav” estilo menú del screenshot */
+.card-nav {
+  @apply rounded-2xl text-white shadow-sm transition-transform;
+  background-image: linear-gradient(135deg, var(--sima-sky-2) 0%, var(--sima-sky-1) 100%);
+}
+.card-nav:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(2,132,199,.25); }
+
+/* Borde suave + glass */
+.panel-soft { @apply rounded-3xl border bg-white/70 shadow-sm backdrop-blur-sm; }
+
+/* Cinta/acento superior */
+.accent-top { background-image: linear-gradient(90deg, #0ea5e9 0%, #06b6d4 100%); }
+
+/* Badges */
+.badge-online {
+  @apply inline-flex items-center gap-2 rounded-xl px-3 py-1 text-sm;
+  color: #065f46; background: #ecfdf5; border: 1px solid #bbf7d0;
+}
+.badge-chip {
+  @apply inline-flex items-center rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide bg-white/30;
+}
+
+/* Botón peligro (logout/delete) con gradiente rojizo estilo screenshot */
+.btn-danger {
+  @apply inline-flex items-center gap-2 rounded-2xl text-white text-sm font-semibold px-4 py-2.5 shadow-sm transition-all;
+  background-image: linear-gradient(135deg, #ff5277 0%, #ff3d3d 100%);
+}
+.btn-danger:hover { filter: brightness(1.04); }
+
+/* Fondo suave de página, similar al panel lateral */
+.page-soft { background: linear-gradient(180deg, #f5fbff 0%, #edf6ff 100%); }
+/* === SIMA THEME (ya existía arriba) === */
+/* ...tu contenido actual... */
+
+/* === NUEVO: Fondo agro (suelo + brotes, sin imágenes externas) === */
+.bg-farm {
+  /* “arado” con surcos */
+  background:
+    /* brotes */
+    radial-gradient(circle at 15% 20%, #22c55e55 0 3px, transparent 4px),
+    radial-gradient(circle at 35% 65%, #16a34a55 0 3px, transparent 4px),
+    radial-gradient(circle at 75% 30%, #22c55e55 0 3px, transparent 4px),
+    /* surcos de tierra */
+    repeating-linear-gradient(
+      -12deg,
+      #7c4a2a 0 14px,
+      #714222 14px 28px
+    );
+  background-blend-mode: overlay, normal;
+}
+
+/* Variante sutil para tarjetas (menos intensidad) */
+.bg-farm-soft {
+  background:
+    radial-gradient(circle at 18% 22%, #22c55e35 0 3px, transparent 4px),
+    radial-gradient(circle at 68% 72%, #16a34a35 0 3px, transparent 4px),
+    linear-gradient(180deg, #f8fafc 0%, #ffffff 70%);
+}
+
+/* === NUEVO: Micro-animaciones === */
+.anim-soft {
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.anim-soft:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(2,132,199,.18); }
+
+/* === NUEVO: Cabecera de sección con glass === */
+.section-head {
+  @apply panel-soft flex items-center justify-between gap-3 px-4 py-3 border;
+  border-color: #e2e8f0;
+}
+
+/* === NUEVO: Contenedor de página con fondo suave + agro opcional === */
+.page-wrap {
+  @apply min-h-[calc(100vh-5rem)] p-3 sm:p-4;
+  background: linear-gradient(180deg, #f5fbff 0%, #edf6ff 100%);
+}
+
+/* === NUEVO: Tarjeta de parcela “glass over farm” === */
+.parcel-card {
+  @apply rounded-2xl border shadow-sm overflow-hidden relative anim-soft;
+  background-color: rgba(255,255,255,.80);
+  backdrop-filter: blur(6px);
+  border-color: #e2e8f0;
+}
+.parcel-accent {
+  background-image: linear-gradient(90deg, var(--sima-sky-2) 0%, var(--sima-sky-1) 100%);
+}
+
+/* === NUEVO: Botonera nueva con tus clases base === */
+.btn-primary-sima { @apply btn-sima; }
+.btn-light {
+  @apply rounded-2xl border px-4 py-2.5 text-sm font-medium text-slate-700 bg-white/70 hover:bg-white;
+}
+
+/* === NUEVO: Filtros sticky en mobile (cuando hay scroll) === */
+.filters-sticky {
+  position: sticky; top: 0; z-index: 30;
+  backdrop-filter: blur(8px);
+  background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.60));
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* === NUEVO: Modal con entradas suaves === */
+.modal-backdrop { @apply fixed inset-0 bg-black/40; }
+.modal-panel {
+  @apply relative w-full max-w-lg rounded-2xl bg-white shadow-xl border;
+  border-color: #e2e8f0;
+}
+
+/* === NUEVO: Pills y chips === */
+.pill {
+  @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide;
+  border: 1px solid #e2e8f0; background: #f8fafc; color: #0f172a;
+}
+.pill-success { color:#065f46; background:#ecfdf5; border-color:#bbf7d0; }
+
+/* === NUEVO: Helpers === */
+.clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }

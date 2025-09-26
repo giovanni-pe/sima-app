@@ -1,0 +1,102 @@
+@startuml
+title SIMA-UNAS - Frontend Architecture (Vue 3 + TypeScript)
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam packageStyle rect
+skinparam ClassAttributeIconVisibility false
+
+' === App (SPA) ===
+node "SPA (Vue 3 + TS)\nVite + Tailwind" as SPA {
+
+  package "layout" {
+    component "AppLayout" as AppLayout <<Layout>>
+    component "WebSidebar" as WebSidebar <<UI>>
+    component "BottomNav" as BottomNav <<UI>>
+    component "MqttStatus" as MqttStatus <<UI>>
+    component "ProfileMenu" as ProfileMenu <<UI>>
+  }
+
+  package "router" {
+    component "Vue Router" as Router <<Router>>
+    component "Guards\n(authGuard, roleGuard)" as Guards <<Router>>
+  }
+
+  package "ui (shared)" as UIShared {
+    component "Form/Inputs\nTables/Cards\nDialogs" as SharedUI <<UI>>
+  }
+
+  package "lib" {
+    component "api (Axios)" as ApiLib <<Lib>>
+    component "mqttService" as MqttLib <<Lib>>
+    component "utils/formatters\nconstants" as UtilsLib <<Lib>>
+  }
+
+  package "state" {
+    component "Pinia" as Pinia <<State>>
+  }
+
+  package "styles" {
+    component "Tailwind config\nTokens/Theme" as Styles <<Style>>
+  }
+
+  ' === Example Module: Parcels ===
+  package "modules/parcels" {
+    component "ParcelPage.vue" as ParcelsPage <<Page>>
+    component "ListParcel.vue" as ParcelsList <<Component>>
+    component "MdlCreateParcel.vue\nMdlUpdateParcel.vue\nMdlDeleteParcel.vue" as ParcelsModals <<Component>>
+    component "useParcelStore.ts" as ParcelStore <<Store>>
+    component "ParcelService.ts" as ParcelService <<Service>>
+  }
+
+  ' (Otros modulos siguen el mismo patron)
+  package "modules/*" as OtherModules {
+    component "pages/*" as PagesX <<Page>>
+    component "components/*" as ComponentsX <<Component>>
+    component "stores/*" as StoresX <<Store>>
+    component "services/*" as ServicesX <<Service>>
+  }
+
+  ' === Relaciones de arquitectura (flujo) ===
+  AppLayout -[hidden]-> Router
+  AppLayout -[hidden]-> WebSidebar
+  AppLayout -[hidden]-> BottomNav
+  AppLayout -[hidden]-> MqttStatus
+  AppLayout -[hidden]-> ProfileMenu
+
+  Router --> ParcelsPage : route -> render
+  ParcelsPage --> ParcelsList : compose
+  ParcelsPage --> ParcelsModals : compose
+
+  ParcelsPage --> ParcelStore : dispatch actions / read state
+  ParcelsList --> ParcelStore : use state directly
+
+  ParcelStore --> ParcelService : async actions
+  ParcelService --> ApiLib : HTTP (Axios)
+
+  MqttLib --> ParcelStore : realtime updates\n(subscribe -> patch state)
+  MqttStatus ..> MqttLib : read connection state
+
+  SharedUI .. ParcelsPage
+  SharedUI .. ParcelsList
+  SharedUI .. ParcelsModals
+
+  Guards --> Router : guard routes
+  Router ..> Pinia : read auth state (role)
+  ParcelStore ..> Pinia : registered store
+  Styles ..> ParcelsPage
+  Styles ..> SharedUI
+}
+
+
+' === Legend ===
+legend right
+<<Layout>> Shell y chrome (AppLayout, Sidebar, BottomNav)
+<<Router>> Navegacion y guards
+<<Page>> Pagina enrutable (orquesta)
+<<Component>> UI de dominio (presentacional)
+<<Store>> Estado (Pinia) + acciones
+<<Service>> Capa HTTP (Axios) / DTO mapping
+<<Lib>> Utilitarios (api, mqtt, utils)
+<<Style>> Tokens/temas Tailwind
+end legend
+@enduml
