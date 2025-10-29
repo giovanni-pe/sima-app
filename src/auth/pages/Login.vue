@@ -26,12 +26,8 @@ watch(
 <template>
   <!-- Si ya está autenticado, el watcher hará el redirect; la vista se mostrará un instante -->
   <div class="w-full max-w-md mx-auto">
-    <Card class="p-8">
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">SIMA-UNAS</h1>
-        <p class="text-gray-600">Ingresa a tu cuenta</p>
-      </div>
-
+    <Card >
+  
       <LoginForm
         :loading="loading"
         :error="error"
