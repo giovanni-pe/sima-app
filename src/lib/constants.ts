@@ -6,7 +6,7 @@ export const API_CONFIG = {
 } as const;
 
 export const MQTT_CONFIG = {
-  host: import.meta.env.VITE_MQTT_HOST || 'localhost',
+  host: import.meta.env.VITE_MQTT_HOST || 'sima.mqtt.smartpx.org',
   port: Number(import.meta.env.VITE_MQTT_PORT || 9001),
   topics: {
     tripRequests:     'trips/requests',
