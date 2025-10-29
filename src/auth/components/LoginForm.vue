@@ -137,7 +137,7 @@ function onKeyDown(e: KeyboardEvent) {
                 SIMA-UNAS
               </h1>
               <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">
-                Sistema de Monitoreo Ambiental
+                Sistema de Monitoreo Agricola
               </p>
             </div>
           </div>
@@ -369,7 +369,7 @@ function onKeyDown(e: KeyboardEvent) {
           Universidad Nacional Agraria de la Selva
         </p>
         <p class="text-[10px] text-slate-500 dark:text-slate-500 mt-1">
-          © 2025 SIMA-UNAS. Sistema de Monitoreo Ambiental
+          © 2025 SIMA-UNAS. Sistema de Monitoreo Agricola. Todos los derechos reservados.
         </p>
       </div>
     </div>
