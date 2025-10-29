@@ -1,0 +1,68 @@
+@startuml
+title Arquitectura IoT integrada – SIMA-UNAS (Entrada–Proceso–Salida–Retroalimentación)
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultTextAlignment center
+
+package "Entrada: Adquisición en campo" as Entrada {
+  component "Sensor DHT11\n(Temperatura • Humedad)" as DHT11
+  component "Sensor Humedad de Suelo" as SOIL
+  node "Arduino Uno / ESP32\n(Firmware recolector)" as MCU
+  DHT11 -down-> MCU
+  SOIL  -down-> MCU
+}
+
+package "Proceso: Mensajería, Backend y Datos" as Proceso {
+  package "Mensajería MQTT" as MSG {
+    component "Broker MQTT\nEclipse Mosquitto\n(1883 / 9001 WSS)" as BRK
+  }
+
+  package "Backend (Arquitectura limpia)" as BE {
+    component "Domain\nEntidades • Reglas" as DOM
+    component "Application\nCasos de uso • Worker MQTT" as APP
+    component "Infrastructure\nRepos MySQL • Cliente MQTT • Colas/Cache" as INF
+    component "HTTP\nControladores • Rutas • Auth JWT" as HTTP
+    database  "MySQL 8\nSeries temporales" as DB
+
+    APP --> DOM
+    INF --> DOM
+    HTTP --> APP
+    APP --> INF
+    INF --> DB
+  }
+}
+
+package "Salida: Presentación e interoperabilidad" as Salida {
+  package "Frontend Vue 3 + TypeScript" as FE {
+    component "Store\n(Pinia)" as STORE
+    component "Services\n(Axios + MQTT WSS)" as SRV
+    component "Components\n(UI reutilizable)" as CMP
+    component "Pages\n(Dashboard • Historial • Config • Reportes)" as PGS
+
+    STORE <--> SRV
+    SRV --> CMP
+    CMP --> PGS
+  }
+}
+
+package "Retroalimentación: Acción en campo" as Retro {
+  component "Actuadores\n(Válvula • Bomba • Nebulizador)" as ACT
+}
+
+' ===== Flujos principales =====
+MCU -right-> BRK : "MQTT Publish\nQoS 0/1/2 • JSON"
+SRV -up->   BRK : "MQTT WSS (9001)\nSuscripción"
+BRK -right-> APP : "Tópicos:\nsimaunas/parcel/{id}/device/{id}/reading"
+SRV -down->  HTTP: "HTTP/HTTPS\nREST v1"
+HTTP -up->   SRV : "JSON"
+APP -down->  ACT : "Comando/Reglas"
+ACT -left->  APP : "Evento de riego\n(estado/telemetría)"
+
+' ===== Seguridad y gobierno (transversal) =====
+note "Seguridad: JWT • TLS • Roles\nGobierno de datos: metadatos • auditoría" as SEC
+SEC .. BE
+SEC .. FE
+SEC .. BRK
+
+@enduml

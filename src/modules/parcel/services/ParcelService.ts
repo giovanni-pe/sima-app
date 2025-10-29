@@ -1,4 +1,4 @@
-import { api } from "@/lib/api"; // Axios preconfigurado (baseURL, interceptors)
+import { api, normalizeList, type AnyListPayload, } from "@/lib/api"; // Axios preconfigurado (baseURL, interceptors)
 import type { IParcel, Paginated } from "../Interfaces";
 import type { ParcelFilters } from "../Interfaces";
 
@@ -7,66 +7,74 @@ const BASE_URL = "/parcels"; // Ajusta prefijo si usas /api/v1
 
 
 function toQuery(params: Record<string, unknown>) {
-const qs = new URLSearchParams();
-Object.entries(params).forEach(([k, v]) => {
-if (v === undefined || v === null || v === "") return;
-if (typeof v === "boolean") qs.append(k, v ? "1" : "0");
-else qs.append(k, String(v));
-});
-return qs.toString();
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+        if (v === undefined || v === null || v === "") return;
+        if (typeof v === "boolean") qs.append(k, v ? "1" : "0");
+        else qs.append(k, String(v));
+    });
+    return qs.toString();
 }
 
 
 export const ParcelService = {
-async list(opts: ParcelFilters & { page?: number; per_page?: number }): Promise<Paginated<IParcel>> {
-const query = toQuery({
-q: opts.q,
-active: opts.status === "active" ? 1 : opts.status === "inactive" ? 0 : undefined,
-from_date: opts.fromDate,
-to_date: opts.toDate,
-sort: opts.sort || "-created_at",
-page: opts.page ?? 1,
-per_page: opts.per_page ?? 12,
-});
+    async list(opts: ParcelFilters & { page?: number; per_page?: number }): Promise<Paginated<IParcel>> {
+        const query = toQuery({
+            q: opts.q,
+            active: opts.status === "active" ? 1 : opts.status === "inactive" ? 0 : undefined,
+            from_date: opts.fromDate,
+            to_date: opts.toDate,
+            sort: opts.sort || "-created_at",
+            page: opts.page ?? 1,
+            per_page: opts.per_page ?? 12,
+        });
+
+        const res = await api.get<AnyListPayload<IParcel>>(`${BASE_URL}?${query}`);
+
+        if (!res.success || res.data == null) {
+            return {
+                data: [],
+                meta: {
+                    current_page: opts.page ?? 1,
+                    per_page: opts.per_page ?? 12,
+                    total: 0,
+                    last_page: 1,
+                },
+            };
+        }
+
+        const { data: rows, meta } = normalizeList<IParcel>(res.data, {
+            page: opts.page ?? 1,
+            perPage: opts.per_page ?? 12,
+        });
+        return { data: rows, meta }; 
+    },
 
 
-const { data } = await api.get(`${BASE_URL}?${query}`);
+    async find(id: number): Promise<IParcel> {
+        const res = await api.get<IParcel>(`${BASE_URL}/${id}`);
+        if (!res.success || res.data == null) throw new Error(res.message ?? 'No encontrado');
+        return res.data;
+    },
 
 
-// Normaliza payload de Laravel (Resource o LengthAwarePaginator)
-const payload = (Array.isArray(data?.data)) ? data : { data, meta: {} };
-const meta = payload.meta || {
-current_page: Number(data?.current_page ?? opts.page ?? 1),
-per_page: Number(data?.per_page ?? opts.per_page ?? 12),
-total: Number(data?.total ?? (payload.data?.length ?? 0)),
-last_page: Number(data?.last_page ?? 1)
-};
+    async create(body: Partial<IParcel>): Promise<IParcel> {
+        const res = await api.post<IParcel>(BASE_URL, body);
+        if (!res.success || res.data == null) throw new Error(res.message ?? 'No encontrado');
+        return res.data;
+    },
 
 
-return { data: payload.data as IParcel[], meta };
-},
+    async update(id: number, body: Partial<IParcel>): Promise<IParcel> {
+        const res = await api.put<IParcel>(`${BASE_URL}/${id}`, body);
+        if (!res.success || res.data == null) throw new Error(res.message ?? 'No encontrado');
+        return res.data;
+    },
 
 
-async find(id: number): Promise<IParcel> {
-const { data } = await api.get(`${BASE_URL}/${id}`);
-return (data?.data ?? data) as IParcel;
-},
-
-
-async create(body: Partial<IParcel>): Promise<IParcel> {
-const { data } = await api.post(BASE_URL, body);
-return (data?.data ?? data) as IParcel;
-},
-
-
-async update(id: number, body: Partial<IParcel>): Promise<IParcel> {
-const { data } = await api.put(`${BASE_URL}/${id}`, body);
-return (data?.data ?? data) as IParcel;
-},
-
-
-async remove(id: number): Promise<boolean> {
-const { data } = await api.delete(`${BASE_URL}/${id}`);
-return !!(data?.success ?? true);
-},
+    async remove(id: number): Promise<boolean> {
+        const res = await api.delete(`${BASE_URL}/${id}`);
+        if (!res.success || res.data == null) throw new Error(res.message ?? 'No encontrado');
+        return true;
+    },
 };

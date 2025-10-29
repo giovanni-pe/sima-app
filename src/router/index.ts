@@ -71,6 +71,11 @@ const routes: RouteRecordRaw[] = [
         component: ControlUnitPage,
         meta: { suspense: { fallback: () => h(Loading, { fullScreen: true, text: 'Loading passenger dashboard...' }) } },
       },
+       {
+        path: 'sensors',
+        component: SensorsPage,
+        meta: { suspense: { fallback: () => h(Loading, { fullScreen: true, text: 'Loading passenger dashboard...' }) } },
+      },
       
     ]
   },
@@ -110,6 +115,7 @@ import { useAuthStore } from '@/auth/stores/auth';
 import { useTripRedirectStore } from '@/router/stores/useTripRedirectStore';
 import ParcelPage from '@/modules/parcel/pages/ParcelPage.vue';
 import ControlUnitPage from '@/modules/control-unit/pages/ControlUnitPage.vue';
+import SensorsPage from '@/modules/sensors/pages/SensorsPage.vue';
 
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore();

@@ -93,3 +93,72 @@ private async parseResponse<T>(res: Response): Promise<ApiResponse<T>> {
 }
 
 export const api = new ApiClient();
+
+
+
+// Tipos base de paginación
+type PaginatorCore = {
+  current_page: number;
+  per_page: number;
+  total: number;
+  last_page: number;
+};
+
+// Formatos posibles de Laravel
+type LengthAware<T> = { data: T[] } & PaginatorCore;
+type ResourceLike<T> = { data: T[]; meta?: Partial<PaginatorCore> };
+export type AnyListPayload<T> = T[] | ResourceLike<T> | LengthAware<T>;
+
+// Type guards
+const isLengthAware = <T>(x: unknown): x is LengthAware<T> =>
+  !!x && typeof x === "object" && Array.isArray((x as any).data) && typeof (x as any).current_page === "number";
+
+const isResourceLike = <T>(x: unknown): x is ResourceLike<T> =>
+  !!x && typeof x === "object" && Array.isArray((x as any).data);
+
+// Normalizador tipado
+export function normalizeList<T>(
+  raw: AnyListPayload<T>,
+  fallback: { page: number; perPage: number }
+): { data: T[]; meta: PaginatorCore } {
+  if (isLengthAware<T>(raw)) {
+    return {
+      data: raw.data,
+      meta: {
+        current_page: raw.current_page,
+        per_page: raw.per_page,
+        total: raw.total,
+        last_page: raw.last_page,
+      },
+    };
+  }
+
+  if (isResourceLike<T>(raw)) {
+    const rows = raw.data;
+    const m = raw.meta ?? {};
+    const per_page = Number(m.per_page ?? fallback.perPage) || fallback.perPage;
+    const total = Number(m.total ?? rows.length);
+    const last_page = Number(m.last_page ?? Math.max(1, Math.ceil(total / (per_page || 1))));
+    return {
+      data: rows,
+      meta: {
+        current_page: Number(m.current_page ?? fallback.page),
+        per_page,
+        total,
+        last_page,
+      },
+    };
+  }
+
+  // Array plano
+  const rows = raw as T[];
+  return {
+    data: rows,
+    meta: {
+      current_page: fallback.page,
+      per_page: fallback.perPage,
+      total: rows.length,
+      last_page: Math.max(1, Math.ceil(rows.length / (fallback.perPage || 1))),
+    },
+  };
+}

@@ -1,16 +1,7 @@
 import { api, normalizeList, type AnyListPayload } from '@/lib/api';
-import type { ControlUnit } from '../Interfaces';
-export interface Paginated<T> {
-  data: T[];
-  meta: {
-    current_page: number;
-    per_page: number;
-    total: number;
-    last_page: number;
-  };
-}
+import type { Sensor, PaginatedResponse } from '../Interfaces';
 
-const BASE = '/control-units';
+const BASE = '/sensors';
 
 function toQueryString(params: Record<string, unknown>): string {
   const qs = new URLSearchParams();
@@ -22,12 +13,12 @@ function toQueryString(params: Record<string, unknown>): string {
   return qs.toString();
 }
 
-export const ControlUnitService = {
-  async list(params: Record<string, unknown> & { page?: number; per_page?: number }): Promise<Paginated<ControlUnit>> {
+export const SensorService = {
+  async list(params: Record<string, unknown> & { page?: number; per_page?: number }): Promise<PaginatedResponse<Sensor>> {
     const query = toQueryString(params);
     const url = query ? `${BASE}?${query}` : BASE;
 
-    const res = await api.get<AnyListPayload<ControlUnit>>(url);
+    const res = await api.get<AnyListPayload<Sensor>>(url);
     if (!res.success || res.data == null) {
       return {
         data: [],
@@ -40,7 +31,7 @@ export const ControlUnitService = {
       };
     }
 
-    const { data, meta } = normalizeList<ControlUnit>(res.data, {
+    const { data, meta } = normalizeList<Sensor>(res.data, {
       page: params.page ?? 1,
       perPage: params.per_page ?? 12,
     });
@@ -48,14 +39,14 @@ export const ControlUnitService = {
     return { data, meta };
   },
 
-  async create(payload: Partial<ControlUnit>): Promise<ControlUnit> {
-    const res = await api.post<ControlUnit>(BASE, payload);
+  async create(payload: Partial<Sensor>): Promise<Sensor> {
+    const res = await api.post<Sensor>(BASE, payload);
     if (!res.success || res.data == null) throw new Error(res.message ?? 'No se pudo crear');
     return res.data;
   },
 
-  async update(id: number, payload: Partial<ControlUnit>): Promise<ControlUnit> {
-    const res = await api.put<ControlUnit>(`${BASE}/${id}`, payload);
+  async update(id: number, payload: Partial<Sensor>): Promise<Sensor> {
+    const res = await api.put<Sensor>(`${BASE}/${id}`, payload);
     if (!res.success || res.data == null) throw new Error(res.message ?? 'No se pudo actualizar');
     return res.data;
   },
@@ -66,15 +57,9 @@ export const ControlUnitService = {
     return true;
   },
 
-  async show(id: number): Promise<ControlUnit> {
-    const res = await api.get<ControlUnit>(`${BASE}/${id}`);
+  async show(id: number): Promise<Sensor> {
+    const res = await api.get<Sensor>(`${BASE}/${id}`);
     if (!res.success || res.data == null) throw new Error(res.message ?? 'No encontrado');
-    return res.data;
-  },
-
-  async active(): Promise<ControlUnit[]> {
-    const res = await api.get<ControlUnit[]>(`${BASE}/active`);
-    if (!res.success || res.data == null) return [];
     return res.data;
   },
 };

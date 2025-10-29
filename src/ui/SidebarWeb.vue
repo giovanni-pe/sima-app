@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 export interface SidebarNavItem {
   id: string;
   label: string;
-  icon: string;
+  icon?: string;
   path?: string;
   disabled?: boolean;
   children?: SidebarNavItem[];
@@ -43,6 +43,7 @@ const checkMobile = () => {
     expanded.value = true;
   }
 };
+const DEFAULT_ICON = 'mdi:chevron-right';
 
 onMounted(() => {
   checkMobile();
@@ -237,7 +238,8 @@ onUnmounted(() => {
               :aria-haspopup="item.children ? 'true' : undefined">
               <!-- Icono con mejor spacing -->
               <div class="flex items-center justify-center w-6 h-6 flex-shrink-0">
-                <Icon :icon="item.icon" class="w-5 h-5 transition-transform group-hover:scale-110" />
+                <Icon :icon="item.icon ?? DEFAULT_ICON" class="w-5 h-5 transition-transform group-hover:scale-110" />
+
               </div>
 
               <!-- Label con animaciones -->

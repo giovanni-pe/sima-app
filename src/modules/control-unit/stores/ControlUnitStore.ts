@@ -71,7 +71,7 @@ export const useControlUnitStore = defineStore('controlUnits', {
       this.parcelOptionsLoading = true;
       try {
         const res = await ParcelLookupService.list();
-        this.parcelOptions = Array.isArray(res) ? res : (res.data ?? []);
+        this.parcelOptions = Array.isArray(res) ? res :  [];
         
       } finally {
         this.parcelOptionsLoading = false;

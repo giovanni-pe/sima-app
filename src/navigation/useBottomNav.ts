@@ -17,7 +17,7 @@ function nodeToBottomItem(n: NavNode): BottomNavItem {
   return {
     id: n.id,
     label: n.label,
-    icon: n.icon,
+    icon: n.icon ?? '',
     path: n.path ?? firstChildPath ?? '/',
     // Aquí podrías mapear badges reales (ej: notificaciones) según el id
     // badge: n.id === 'alerts' ? unreadCount.value : undefined,
